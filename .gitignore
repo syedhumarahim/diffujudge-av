@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Envs
+.venv/
+venv/
+env/
+ENV/
+.env
+.envrc
+*.env.local
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+coverage.xml
+*.cover
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs / outputs / artifacts
+logs/
+outputs/
+runs/
+wandb/
+mlruns/
+*.log
+*.jsonl.gz
+artifacts/
+
+# Data — never commit
+data/raw/
+data/cache/
+data/lingoqa/
+data/coda_lm/
+data/golden/
+*.parquet
+*.arrow
+*.npy
+*.npz
+*.h5
+*.pkl
+
+# Model weights
+checkpoints/
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.gguf
+
+# Hydra
+multirun/
+.hydra/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Notebooks
+.ipynb_checkpoints/

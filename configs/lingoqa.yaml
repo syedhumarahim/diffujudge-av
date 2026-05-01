@@ -1,0 +1,9 @@
+defaults:
+  - default
+  - _self_
+
+name: diffujudge-av-lingoqa
+data:
+  dataset: lingoqa
+  data_dir: ./data/lingoqa
+  n_items: 200

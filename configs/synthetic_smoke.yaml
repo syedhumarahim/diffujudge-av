@@ -1,0 +1,22 @@
+# Smoke-test config: 50 synthetic items, three mock judges. Runs in <30s on CPU.
+defaults:
+  - default
+  - _self_
+
+name: diffujudge-av-smoke
+seed: 42
+
+judges:
+  - name: mock-a
+    backend: mock
+    model: mock-judge
+  - name: mock-b
+    backend: mock
+    model: mock-judge
+  - name: mock-c
+    backend: mock
+    model: mock-judge
+
+data:
+  dataset: synthetic
+  n_items: 50

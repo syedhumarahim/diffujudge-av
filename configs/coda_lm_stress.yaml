@@ -1,0 +1,9 @@
+defaults:
+  - default
+  - _self_
+
+name: diffujudge-av-coda-lm-stress
+data:
+  dataset: coda_lm
+  data_dir: ./data/coda_lm
+  n_items: 50
