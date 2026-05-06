@@ -109,6 +109,10 @@ class LiteLLMJudge(BaseJudge):
 
     def _check_keys(self) -> None:
         m = self.model.lower()
+        if "together" in m:
+            if not os.getenv("TOGETHER_API_KEY"):
+                raise OSError("TOGETHER_API_KEY not set")
+            return
         if m.startswith("gpt") or "openai" in m:
             if not os.getenv("OPENAI_API_KEY"):
                 raise OSError("OPENAI_API_KEY not set")

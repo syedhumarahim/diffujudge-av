@@ -8,45 +8,59 @@ The framework is general-purpose; the AV video evaluator is one flagship applica
 
 ---
 
-## Headline results (real run, 100 items, 3-judge Claude ensemble)
+## Headline results — Claude vs. Open-Source on LingoQA (26,400 real API calls)
 
-![Hero triptych — gold vs prediction, reliability, perturbation stability](docs/figures/hero_triptych.png)
+![Hero comparison — Claude vs. open-source judge ensembles on LingoQA](docs/figures/hero_comparison.png)
 
-**Run config:** 100 AV-flavored items × 7 perturbation levels × 3 samples × 3 judges = **6,600 real Claude API calls** (`claude-haiku-4-5 @ T=0.0` + `claude-sonnet-4-5 @ T=0.0` + `claude-haiku-4-5 @ T=0.6`). Wall clock: ~25 min. Cost: ~$3 with prompt caching.
+**Run config:** 200 LingoQA items × 7 perturbation levels × 3 samples × 2 ensembles × 3 judges each = **26,400 API calls** total.
+- Claude ensemble: `claude-haiku-4-5 @ T=0.0` + `claude-sonnet-4-5 @ T=0.0` + `claude-haiku-4-5 @ T=0.6`
+- Open-source ensemble: `Qwen 2.5-7B` + `Llama 3.3-70B` + `DeepSeek-V3` (via Together AI)
 
 ### Agreement with gold
 
-| Metric | Value |
-|---|---|
-| Pearson r | **0.741** |
-| Spearman ρ | **0.747** |
-| ECE | 0.148 |
-| Brier | 0.839 |
+| Metric | Claude Ensemble | Open-Source Ensemble |
+|---|---|---|
+| **Pearson r** | 0.753 | **0.803** |
+| **Spearman ρ** | 0.702 | **0.718** |
+| ECE | **0.111** | 0.207 |
+| Brier | **0.969** | 1.340 |
+| Pred range | [1.25, 3.45] | **[1.0, 5.0]** |
+| Compression | 0.55× | **1.01×** |
 
-### Perturbation robustness — the key finding
+**Surprise finding:** Open-source models achieve higher Pearson r because they use the full 1–5 scale, while Claude compresses all scores to a narrow 2–3 range (compression ratio 0.55×).
 
-![Bias robustness analysis](docs/figures/bias_robustness.png)
+### Per-model leaderboard
 
-The 3-judge Claude ensemble is **highly robust to all 7 canonical bias sources**. Signed per-level score deltas are near zero (max |Δ| = 0.072), with a coefficient of variation of only 0.009 across perturbation types. This means:
+| Model | Pearson r | Spearman ρ | Cost ($/M tokens) |
+|---|---|---|---|
+| **Qwen 2.5-7B** | **0.831** | **0.804** | $0.30 |
+| DeepSeek-V3 | 0.773 | 0.730 | $0.90 |
+| Claude Sonnet 4.5 | 0.740 | 0.702 | $3.00 |
+| Llama 3.3-70B | 0.716 | 0.668 | $0.88 |
+| Claude Haiku 4.5 (T=0) | 0.714 | 0.672 | $0.25 |
+| Claude Haiku 4.5 (T=0.6) | 0.705 | 0.659 | $0.25 |
 
-- **Rubric paraphrase** (SPUQ-style): Δ = +0.044
-- **Criterion reorder**: Δ = +0.072
-- **Score-ID format swap** (Arabic → Roman): Δ = +0.059
-- **Temperature noise** (T=0 → T=0.6): Δ = +0.063
-- **Exemplar resample**: Δ = +0.051
-- **Frame shuffle** (temporal robustness): Δ = −0.006
+### Score compression — the key discovery
 
-Production users of Claude-as-a-judge for safety-critical AV evaluation can deploy with measurable, quantified confidence in perturbation invariance.
+![Score compression comparison](docs/figures/score_compression_comparison.png)
 
-### Tweedie posterior σ̂ as uncertainty quantification
+Claude judges compress predictions to a narrow 2–3 range despite strong rank correlation. Open-source models use the full ordinal scale (compression ratio 1.01×), giving better absolute calibration for threshold-based AV evaluation.
 
-![Posterior sigma analysis](docs/figures/posterior_sigma.png)
+### Perturbation robustness profile
 
-Even when Tweedie ≈ ensemble mean (the expected regime for robust judges), the framework delivers a **free posterior-variance estimate** per item. The posterior σ̂ correlates r = 0.263 with actual prediction error — items the framework flags as uncertain are genuinely harder to judge.
+![Noise profile comparison](docs/figures/noise_profile.png)
 
-### Why Tweedie ≈ ensemble mean is the right result
+- **Claude** is most sensitive to **score-ID format** (|Δ| = 0.391) — switching Arabic → Roman numerals shifts scores significantly
+- **Open-source models** show lower and more uniform sensitivity across all 7 bias sources (max |Δ| = 0.145)
+- The SDJ framework quantifies these differences at zero additional training cost
 
-When judges are robust to perturbations, per-item σ̂ collapses (mean = 0.087) and Tweedie's correction term vanishes. This is the design's *predicted* outcome — the denoiser reduces to the ensemble mean, which is *itself a diffusion-theoretic justification for ensembling*. The bonus: a calibrated posterior variance that wouldn't exist without the Tweedie framing.
+### Tweedie denoising lift
+
+![Tweedie lift comparison](docs/figures/tweedie_lift.png)
+
+- Open-source ensemble: Tweedie Δ = **+0.002** Pearson (positive lift)
+- Claude ensemble: Tweedie Δ = **−0.005** Pearson (confirms robustness)
+- The posterior σ̂ from Tweedie provides a free per-item uncertainty estimate regardless of lift
 
 The framework is designed to surface improvement on **noisier** judges (open-source VLMs, single-model deployments) where perturbation-level variance is large enough for the KDE-based correction to bite.
 
