@@ -46,20 +46,24 @@ class LingoQALoader:
             if n is not None and i >= n:
                 break
             video_id = r.get("video_id") or r.get("segment_id") or f"clip_{i}"
+            item_id = r.get("item_id") or str(r.get("question_id", f"lingoqa_{i}"))
+            ref = r.get("reference_answer") or r.get("answer") or r.get("reference", "")
             yield LingoQAItem(
-                item_id=str(r.get("question_id", f"lingoqa_{i}")),
+                item_id=item_id,
                 question=r["question"],
-                reference_answer=r.get("answer", r.get("reference", "")),
+                reference_answer=ref,
                 candidate_answer=r.get("candidate_answer"),
                 video_id=str(video_id),
                 frames=[str(p) for p in self._frames_for(video_id)],
-                lingo_judge_score=r.get("lingo_judge"),
-                behavior_label=r.get("behavior"),
-                meta={k: v for k, v in r.items() if k not in {"question", "answer"}},
+                lingo_judge_score=r.get("lingo_judge") or r.get("gold_score"),
+                behavior_label=r.get("behavior") or r.get("behavior_label"),
+                meta={k: v for k, v in r.items()
+                      if k not in {"question", "answer", "reference_answer", "candidate_answer"}},
             )
 
     def _discover_manifest(self) -> Path | None:
         candidates = [
+            self.data_dir / "eval_corpus.jsonl",
             self.data_dir / f"{self.split}.json",
             self.data_dir / f"{self.split}.jsonl",
             self.data_dir / "eval" / "eval.json",

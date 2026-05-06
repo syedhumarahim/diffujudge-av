@@ -14,7 +14,12 @@ import numpy as np
 import orjson
 
 
-def main(run_dir: str = "outputs/e66b4b96a727c3eb") -> None:
+def main(run_dir: str | None = None) -> None:
+    import argparse
+    if run_dir is None:
+        p = argparse.ArgumentParser()
+        p.add_argument("--run-dir", default="outputs/e66b4b96a727c3eb")
+        run_dir = p.parse_args().run_dir
     run_dir = Path(run_dir)
     records = [
         orjson.loads(l)
