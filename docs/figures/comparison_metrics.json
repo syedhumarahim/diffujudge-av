@@ -1,0 +1,12 @@
+{
+  "n_items": 100,
+  "n_api_calls": 6600,
+  "pearson": 0.7263557127007998,
+  "spearman": 0.7465206834840128,
+  "ece": 0.15552246698100758,
+  "brier": 0.8757874526724634,
+  "mean_posterior_std": 0.08711250977387408,
+  "posterior_std_error_correlation": 0.2632775368927812,
+  "perturbation_invariance_cv": 0.009072081906450102,
+  "max_level_delta": 0.0777777777777775
+}

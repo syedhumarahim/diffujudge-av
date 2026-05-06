@@ -1,0 +1,28 @@
+{
+  "n_items": 100,
+  "n_api_calls": 6600,
+  "judges": "claude-haiku-4-5@T0 + claude-sonnet-4-5@T0 + claude-haiku-4-5@T0.6",
+  "cost_usd": 3.0,
+  "wall_clock_min": 25,
+  "pearson_raw": 0.7405215626810915,
+  "pearson_denoised": 0.7263557127007998,
+  "spearman_raw": 0.7472377853074985,
+  "spearman_denoised": 0.7465206834840128,
+  "ece_raw": 0.14843695752367717,
+  "ece_denoised": 0.15552246698100758,
+  "brier_raw": 0.8386715924471605,
+  "brier_denoised": 0.8757874526724634,
+  "mean_posterior_std": 0.08711250977387408,
+  "sigma_error_correlation": 0.2632775368927812,
+  "max_level_delta": 0.0777777777777775,
+  "level_cv": 0.009072081906450062,
+  "per_level_mean_deltas": {
+    "Anchor (baseline)": 0.0,
+    "Rubric paraphrase": 0.04444444444444449,
+    "Criterion reorder": 0.07222222222222227,
+    "Score-ID format": 0.05888888888888895,
+    "Temperature noise": 0.06333333333333335,
+    "Exemplar resample": 0.05111111111111116,
+    "Frame shuffle": -0.005555555555555487
+  }
+}
