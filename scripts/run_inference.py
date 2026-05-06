@@ -16,7 +16,16 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
+
+# Load .env BEFORE importing any judge modules so they see API keys.
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=True)
+except ImportError:
+    pass
 
 from diffujudge.config import DiffuJudgeConfig, JudgeConfig
 from diffujudge.data.lingoqa import LingoQALoader
@@ -28,14 +37,35 @@ from diffujudge.pipeline import DiffuJudgePipeline
 
 def _build_judges(names: list[str], backend: str, gold_lookup: dict[str, float]) -> list[BaseJudge]:
     judges: list[BaseJudge] = []
-    for name in names:
-        name = name.strip()
+    for raw in names:
+        name = raw.strip()
         if backend == "mock":
             judges.append(MockJudge(name=name, gold_lookup=gold_lookup))
+        elif backend == "noisy_mock":
+            # Mock that does NOT see gold — deterministic, but only via item_id hash, so
+            # ensemble + Tweedie has real noise to denoise. Useful for offline reproducibility
+            # of a "real-noise" calibration story when API budget is unavailable.
+            judges.append(MockJudge(name=name, gold_lookup={}, family_bias=0.0,
+                                     verbosity_slope=0.05))
         elif backend == "api":
             from diffujudge.judges.api_judge import LiteLLMJudge
 
             judges.append(LiteLLMJudge(name=name, model=name))
+        elif backend == "anthropic":
+            from diffujudge.judges.anthropic_judge import AnthropicJudge
+
+            # name may carry "@T0.6" suffix for warm-temperature variants.
+            if "@T" in name:
+                model, t_str = name.split("@T")
+                temperature = float(t_str)
+            else:
+                model, temperature = name, 0.0
+            judges.append(AnthropicJudge(name=name, model=model, temperature_default=temperature))
+        elif backend == "anthropic_ensemble":
+            from diffujudge.judges.anthropic_judge import build_anthropic_ensemble
+
+            judges = build_anthropic_ensemble()
+            return judges
         elif backend == "vllm":
             from diffujudge.judges.vllm_judge import VLLMJudge
 
@@ -52,7 +82,11 @@ def main() -> None:
     p.add_argument("--n", type=int, default=200)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--judges", default="mock-a,mock-b,mock-c")
-    p.add_argument("--backend", choices=["mock", "api", "vllm"], default="mock")
+    p.add_argument(
+        "--backend",
+        choices=["mock", "noisy_mock", "api", "anthropic", "anthropic_ensemble", "vllm"],
+        default="mock",
+    )
     p.add_argument("--output-dir", default="./outputs")
     args = p.parse_args()
 

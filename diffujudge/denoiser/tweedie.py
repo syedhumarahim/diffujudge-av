@@ -146,7 +146,7 @@ class AnalyticalTweedieDenoiser:
         score_min: float = 1.0,
         score_max: float = 5.0,
         bandwidth: float | str = "scott",
-        precision_weight: bool = True,
+        precision_weight: bool = False,
     ) -> None:
         self.score_min = float(score_min)
         self.score_max = float(score_max)

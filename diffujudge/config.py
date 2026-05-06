@@ -18,7 +18,7 @@ class JudgeConfig(BaseModel):
     """A single judge in the ensemble."""
 
     name: str
-    backend: Literal["vllm", "api", "mock"] = "mock"
+    backend: Literal["vllm", "api", "anthropic", "anthropic_ensemble", "mock", "noisy_mock"] = "mock"
     model: str = "mock-judge"
     temperature: float = 0.0
     top_p: float = 1.0
